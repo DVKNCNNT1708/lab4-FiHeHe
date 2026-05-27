@@ -263,13 +263,13 @@ Một nhóm được xem là hoàn thành khi:
 Tag gợi ý:
 
 ```text
-v0.1.0-<team>
+v0.1.0_<team>
 ```
 
 Ví dụ:
 
 ```bash
-docker tag fit4110/iot-ingestion:lab04 ghcr.io/<owner>/team-iot:v0.1.0-team-iot
+docker tag fit4110/notification-service:lab04 ghcr.io/<owner>/team-notify:v0.1.0_nhom16
 ```
 
 ---

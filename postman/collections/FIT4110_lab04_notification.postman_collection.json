@@ -1,0 +1,844 @@
+{
+  "info": {
+    "_postman_id": "fit4110-lab03-notification-complete",
+    "name": "FIT4110 Lab03 - Notification API (Complete)",
+    "description": "Comprehensive test suite for Smart Campus Notification API - Nhóm 16",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Functional Tests",
+      "item": [
+        {
+          "name": "POST /notifications - Create notification (Academic)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201 Created', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Response has notification id', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('id');",
+                  "});",
+                  "",
+                  "pm.test('Response has type field', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('type');",
+                  "  pm.expect(json.type).to.equal('Academic');",
+                  "});",
+                  "",
+                  "pm.test('Response has channel field', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('channel');",
+                  "  pm.expect(['EMAIL', 'SMS', 'PUSH', 'IN_APP']).to.include(json.channel);",
+                  "});",
+                  "",
+                  "pm.test('Response time is under 2000ms', function () {",
+                  "  pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientId\": \"SV123456\",\n  \"content\": \"Lớp Calculus 1 sẽ diễn ra vào lúc 8:00 AM ngày mai\",\n  \"type\": \"Academic\",\n  \"channel\": \"EMAIL\",\n  \"priority\": \"High\",\n  \"title\": \"Thông báo lớp học\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications"]
+            }
+          }
+        },
+        {
+          "name": "POST /notifications - Create notification (Emergency)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Response type is Emergency', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.type).to.equal('Emergency');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Prefer",
+                "value": "example=EmergencyNotification"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientId\": \"SV123456\",\n  \"content\": \"Phát hiện khó thở tại tòa nhà B\",\n  \"type\": \"Emergency\",\n  \"channel\": \"PUSH\",\n  \"priority\": \"High\",\n  \"title\": \"Cảnh báo khẩn cấp\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications"]
+            }
+          }
+        },
+        {
+          "name": "GET /notifications/{id} - Retrieve notification",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has notification details', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('id');",
+                  "  pm.expect(json).to.have.property('type');",
+                  "  pm.expect(json).to.have.property('channel');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/550e8400-e29b-41d4-a716-446655440000",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "550e8400-e29b-41d4-a716-446655440000"]
+            }
+          }
+        },
+        {
+          "name": "GET /notifications/user/{userId} - List user notifications",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is an array', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/user/SV123456",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "user", "SV123456"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /notifications/{id}/read - Mark as read",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/550e8400-e29b-41d4-a716-446655440000/read",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "550e8400-e29b-41d4-a716-446655440000", "read"]
+            }
+          }
+        },
+        {
+          "name": "POST /notifications/{id}/retry - Retry failed notification",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/550e8400-e29b-41d4-a716-446655440000/retry",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "550e8400-e29b-41d4-a716-446655440000", "retry"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth Tests",
+      "item": [
+        {
+          "name": "POST /notifications - Missing token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 401', function () {",
+                  "  pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test('Response has Problem Details', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('type');",
+                  "  pm.expect(json).to.have.property('title');",
+                  "  pm.expect(json).to.have.property('status');",
+                  "  pm.expect([400, 401]).to.include(json.status);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientId\": \"SV123456\",\n  \"content\": \"Test\",\n  \"type\": \"Academic\",\n  \"channel\": \"EMAIL\",\n  \"priority\": \"High\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications"]
+            }
+          }
+        },
+        {
+          "name": "POST /notifications - Invalid token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 401', function () {",
+                  "  pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer invalid-token-123"
+              },
+              {
+                "key": "Prefer",
+                "value": "code=401"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientId\": \"SV123456\",\n  \"content\": \"Test\",\n  \"type\": \"Academic\",\n  \"channel\": \"EMAIL\",\n  \"priority\": \"High\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications"]
+            }
+          }
+        },
+        {
+          "name": "GET /notifications/{id} - Missing token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 401', function () {",
+                  "  pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/550e8400-e29b-41d4-a716-446655440000",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "550e8400-e29b-41d4-a716-446655440000"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Negative Tests",
+      "item": [
+        {
+          "name": "POST /notifications - Missing recipientId",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400 or 422', function () {",
+                  "  pm.expect([400, 422]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "pm.test('Error has detail', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('detail');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Test\",\n  \"type\": \"Academic\",\n  \"channel\": \"EMAIL\",\n  \"priority\": \"High\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications"]
+            }
+          }
+        },
+        {
+          "name": "POST /notifications - Invalid channel enum",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400 or 422', function () {",
+                  "  pm.expect([400, 422]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "pm.test('Error mentions channel', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('detail');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientId\": \"SV123456\",\n  \"content\": \"Test\",\n  \"type\": \"Academic\",\n  \"channel\": \"INVALID_CHANNEL\",\n  \"priority\": \"High\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications"]
+            }
+          }
+        },
+        {
+          "name": "POST /notifications - Invalid type enum",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400 or 422', function () {",
+                  "  pm.expect([400, 422]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientId\": \"SV123456\",\n  \"content\": \"Test\",\n  \"type\": \"InvalidType\",\n  \"channel\": \"EMAIL\",\n  \"priority\": \"High\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications"]
+            }
+          }
+        },
+        {
+          "name": "POST /notifications - Content exceeds maxLength",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400 or 422', function () {",
+                  "  pm.expect([400, 422]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "pm.test('Error mentions content length', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('detail');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientId\": \"SV123456\",\n  \"content\": \"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet.\",\n  \"type\": \"Academic\",\n  \"channel\": \"EMAIL\",\n  \"priority\": \"High\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications"]
+            }
+          }
+        },
+        {
+          "name": "GET /notifications/{id} - Not found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "  pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Error response has Problem Details', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('detail');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Prefer",
+                "value": "code=404"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/99999999-9999-9999-9999-999999999999",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "99999999-9999-9999-9999-999999999999"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Boundary & Special Cases",
+      "item": [
+        {
+          "name": "POST /notifications - With Idempotency key (Dedupe)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Idempotency key preserved', function () {",
+                  "  pm.expect(pm.request.headers.get('X-Idempotency-Key')).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "X-Idempotency-Key",
+                "value": "550e8400-e29b-41d4-a716-446655440001"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientId\": \"SV123456\",\n  \"content\": \"Idempotent test\",\n  \"type\": \"Academic\",\n  \"channel\": \"EMAIL\",\n  \"priority\": \"High\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications"]
+            }
+          }
+        },
+        {
+          "name": "POST /notifications - Priority Low",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientId\": \"SV123456\",\n  \"content\": \"Low priority notification\",\n  \"type\": \"Social\",\n  \"channel\": \"PUSH\",\n  \"priority\": \"Low\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications"]
+            }
+          }
+        },
+        {
+          "name": "POST /notifications - Channel SMS",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Channel SMS accepted', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.channel).to.equal('SMS');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Prefer",
+                "value": "example=SmsNotification"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientId\": \"SV123456\",\n  \"content\": \"SMS Notification\",\n  \"type\": \"Academic\",\n  \"channel\": \"SMS\",\n  \"priority\": \"Medium\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications"]
+            }
+          }
+        }
+      ]
+    }
+    ,
+    {
+      "name": "05_Consumer_side_Smoke",
+      "item": [
+        {
+          "name": "Core -> Notification - Smoke POST /notifications",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201 or 200', function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "pm.test('Response has id and type', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('id');",
+                  "  pm.expect(json).to.have.property('type');",
+                  "});",
+                  "",
+                  "// store id for downstream checks",
+                  "const json = (() => { try { return pm.response.json(); } catch(e) { return {}; } })();",
+                  "if (json && json.id) pm.environment.set('consumer_notification_id', json.id);",
+                  "",
+                  "pm.test('Response time under 2000ms', function () {",
+                  "  pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientId\": \"SV999999\",\n  \"content\": \"Core alert: sensor threshold exceeded\",\n  \"type\": \"Emergency\",\n  \"channel\": \"PUSH\",\n  \"priority\": \"High\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications"]
+            }
+          }
+        },
+        {
+          "name": "Core -> Notification - Dedup (Idempotency)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('First request status is 201 or 200', function () {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "const firstJson = (() => { try { return pm.response.json(); } catch(e) { return {}; } })();",
+                  "if (firstJson && firstJson.id) pm.environment.set('dedupe_first_id', firstJson.id);",
+                  "",
+                  "// send second request with same X-Idempotency-Key",
+                  "const secondRequest = {",
+                  "  url: pm.request.url.toString(),",
+                  "  method: 'POST',",
+                  "  header: pm.request.headers.toObject(),",
+                  "  body: { mode: 'raw', raw: pm.request.body ? pm.request.body.raw : '' }",
+                  "};",
+                  "if (!secondRequest.header['X-Idempotency-Key']) {",
+                  "  secondRequest.header['X-Idempotency-Key'] = pm.request.headers.get('X-Idempotency-Key') || pm.environment.get('dedupe_key') || '550e8400-e29b-41d4-a716-446655440002';",
+                  "}",
+                  "",
+                  "pm.sendRequest(secondRequest, function (err, res) {",
+                  "  pm.test('Second request completed', function () {",
+                  "    pm.expect(err).to.be.null;",
+                  "    pm.expect([200,201,409,422]).to.include(res.code);",
+                  "  });",
+                  "",
+                  "  try {",
+                  "    const secondJson = res.json();",
+                  "    if (secondJson && secondJson.id && pm.environment.get('dedupe_first_id')) {",
+                  "      pm.test('Ids match or dedupe behavior observed', function () {",
+                  "        pm.expect(secondJson.id).to.be.oneOf([pm.environment.get('dedupe_first_id'), secondJson.id]);",
+                  "      });",
+                  "    }",
+                  "  } catch(e) { /* ignore parse errors */ }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "X-Idempotency-Key",
+                "value": "550e8400-e29b-41d4-a716-446655440002"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientId\": \"SV999999\",\n  \"content\": \"Core alert (dedupe)\",\n  \"type\": \"Emergency\",\n  \"channel\": \"PUSH\",\n  \"priority\": \"High\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

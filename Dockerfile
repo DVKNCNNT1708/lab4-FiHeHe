@@ -22,7 +22,7 @@ ENV PYTHONUNBUFFERED=1
 ENV PATH="/opt/venv/bin:$PATH"
 ENV APP_HOST=0.0.0.0
 ENV APP_PORT=8000
-ENV AUTH_TOKEN=local-dev-token
+ENV AUTH_TOKEN=local-valid-token
 
 WORKDIR /app
 
@@ -41,4 +41,4 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).read()" || exit 1
 
-CMD ["sh", "-c", "uvicorn iot_app.main:app --app-dir src --host ${APP_HOST} --port ${APP_PORT}"]
+CMD ["sh", "-c", "uvicorn notification_app.main:app --app-dir src --host ${APP_HOST} --port ${APP_PORT}"]

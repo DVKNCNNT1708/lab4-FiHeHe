@@ -6,18 +6,18 @@ Mỗi nhóm bắt đầu từ repo mẫu này và thay phần IoT bằng service
 
 ## Việc chung cho mọi nhóm
 
-- [ ] Copy contract từ Lab 03 vào thư mục `contracts/`.
-- [ ] Đảm bảo service có `GET /health`.
-- [ ] Viết hoặc cập nhật `Dockerfile`.
-- [ ] Viết `.dockerignore`.
-- [ ] Viết `.env.example`.
-- [ ] Viết `RUN_LOCAL.md`.
-- [ ] Build image.
-- [ ] Run container.
-- [ ] Chạy Postman Collection từ Lab 03 trên container.
-- [ ] Xuất Newman report.
-- [ ] Chụp bằng chứng `/health` hoặc log container.
-- [ ] Ghi tag image đã push.
+- [x] Copy contract từ Lab 03 vào thư mục `contracts/`.
+- [x] Đảm bảo service có `GET /health`.
+- [x] Viết hoặc cập nhật `Dockerfile`.
+- [x] Viết `.dockerignore`.
+- [x] Viết `.env.example`.
+- [x] Viết `RUN_LOCAL.md`.
+- [x] Build image.
+- [x] Run container.    
+- [x] Chạy Postman Collection từ Lab 03 trên container.
+- [x] Xuất Newman report.
+- [x] Chụp bằng chứng `/health` hoặc log container.
+- [x] Ghi tag image đã push.
 
 ---
 

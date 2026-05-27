@@ -1,0 +1,262 @@
+openapi: 3.1.0
+info:
+  title: Smart Campus Notification API - Nhóm 16
+  description: API cung cấp dịch vụ thông báo đa kênh. Đã bổ sung Retry, Dedupe, ràng buộc Channel và Security (Auth 401) theo chuẩn Lab 03.
+  version: 1.0.0
+  contact:
+    name: Trần Anh Tú
+    email: tu.trananh@student.dainam.edu.vn
+
+servers:
+  - url: http://localhost:4010
+    description: Prism Mock Server
+
+tags:
+  - name: Notification
+    description: Các API liên quan đến quản lý và gửi thông báo
+
+# Bắt buộc phải có Token cho toàn bộ API
+security:
+  - BearerAuth: []
+
+paths:
+  /notifications:
+    post:
+      tags:
+        - Notification
+      summary: Gửi một thông báo mới (Hỗ trợ Dedupe)
+      description: Tạo và gửi một thông báo mới tới hệ thống.
+      operationId: triggerNotification
+      parameters:
+        - name: X-Idempotency-Key
+          in: header
+          required: false
+          description: Khóa chống gửi trùng lặp thông báo (Deduplication)
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+      responses:
+        '201':
+          description: Thông báo đã được tiếp nhận thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+              examples:
+                AcademicNotification:
+                  summary: Academic Notification Example
+                  value:
+                    id: "550e8400-e29b-41d4-a716-446655440000"
+                    type: "Academic"
+                    courseName: "Calculus 1"
+                    message: "Lớp Calculus 1 sẽ diễn ra vào lúc 8:00 AM ngày mai"
+                    channel: "EMAIL"
+                EmergencyNotification:
+                  summary: Emergency Notification Example
+                  value:
+                    id: "550e8400-e29b-41d4-a716-446655440001"
+                    type: "Emergency"
+                    location: "Building B"
+                    hazardLevel: 4
+                    channel: "PUSH"
+                SmsNotification:
+                  summary: SMS Notification Example
+                  value:
+                    id: "550e8400-e29b-41d4-a716-446655440002"
+                    type: "Academic"
+                    courseName: "Calculus 1"
+                    message: "SMS Notification"
+                    channel: "SMS"
+        '400':
+          $ref: '#/components/responses/ProblemResponse'
+        '401':
+          description: Lỗi chưa xác thực (Thiếu hoặc sai Token)
+          $ref: '#/components/responses/ProblemResponse'
+        '422':
+          $ref: '#/components/responses/ProblemResponse'
+        '429':
+          description: Lỗi gọi API quá nhiều lần (Rate Limit)
+          $ref: '#/components/responses/ProblemResponse'
+
+  /notifications/{id}:
+    get:
+      tags:
+        - Notification
+      summary: Tra cứu thông báo cụ thể theo ID
+      description: Lấy thông tin chi tiết của một thông báo dựa trên ID định danh.
+      operationId: getNotificationById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Thông tin chi tiết thông báo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+        '401':
+          $ref: '#/components/responses/ProblemResponse'
+        '404':
+          $ref: '#/components/responses/ProblemResponse'
+
+  /notifications/user/{userId}:
+    get:
+      tags:
+        - Notification
+      summary: Lấy danh sách thông báo của người dùng
+      description: Lấy toàn bộ danh sách thông báo thuộc về một sinh viên cụ thể.
+      operationId: getUserNotifications
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Danh sách thông báo.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+        '401':
+          $ref: '#/components/responses/ProblemResponse'
+
+  /notifications/{id}/read:
+    patch:
+      tags:
+        - Notification
+      summary: Cập nhật trạng thái thông báo đã đọc
+      description: Đánh dấu một thông báo là đã đọc bởi người dùng.
+      operationId: markNotificationAsRead
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Cập nhật thành công.
+        '401':
+          $ref: '#/components/responses/ProblemResponse'
+        '404':
+          $ref: '#/components/responses/ProblemResponse'
+
+  /notifications/{id}/retry:
+    post:
+      tags:
+        - Notification
+      summary: Thử gửi lại thông báo (Retry)
+      description: Yêu cầu hệ thống thử gửi lại một thông báo đã bị lỗi trước đó.
+      operationId: retryNotification
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Đã đưa vào hàng đợi gửi lại thành công.
+        '401':
+          $ref: '#/components/responses/ProblemResponse'
+        '404':
+          $ref: '#/components/responses/ProblemResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    ProblemResponse:
+      description: Lỗi theo chuẩn Problem Details (RFC 7807)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+
+  schemas:
+    NotificationRequest:
+      type: object
+      required: [recipientId, content, type, priority, channel]
+      properties:
+        recipientId:
+          type: string
+          example: "SV123456"
+        content:
+          type: string
+          maxLength: 1000
+        type:
+          type: string
+          enum: [Academic, Emergency, Social]
+        channel:
+          type: string
+          enum: [EMAIL, SMS, PUSH, IN_APP]
+          description: Kênh gửi thông báo
+        priority:
+          type: string
+          enum: [High, Medium, Low]
+        title:
+          type: [string, "null"]
+          example: "Thông báo báo cháy"
+
+    Notification:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/AcademicNotification'
+        - $ref: '#/components/schemas/EmergencyNotification'
+      discriminator:
+        propertyName: type
+        mapping:
+          Academic: '#/components/schemas/AcademicNotification'
+          Emergency: '#/components/schemas/EmergencyNotification'
+
+    AcademicNotification:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        type: { type: string, const: Academic }
+        courseName: { type: string }
+        message: { type: string }
+        channel: { type: string, enum: [EMAIL, SMS, PUSH, IN_APP] }
+
+    EmergencyNotification:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        type: { type: string, const: Emergency }
+        location: { type: string }
+        hazardLevel: { type: integer, minimum: 1, maximum: 5 }
+        channel: { type: string, enum: [EMAIL, SMS, PUSH, IN_APP] }
+
+    ProblemDetails:
+      type: object
+      required: [type, title, status]
+      properties:
+        type: { type: string, format: uri }
+        title: { type: string }
+        status:
+          type: integer
+          minimum: 400
+          maximum: 599
+        detail: { type: string }
+        instance: { type: string, format: uri }
